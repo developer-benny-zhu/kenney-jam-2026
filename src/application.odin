@@ -3,8 +3,8 @@ package src
 
 import "base:runtime"
 import "core:log"
-import sdl "vendor:sdl3"
 import "core:time"
+import sdl "vendor:sdl3"
 Application_Error :: enum {
 	None,
 	Sdl_Initialization_Error,
@@ -13,13 +13,14 @@ Application_Error :: enum {
 }
 
 Application :: struct {
-	window:   ^sdl.Window,
-	renderer: ^sdl.Renderer,
-	start:    proc(application: ^Application),
-	update:   proc(application: ^Application),
-	end:      proc(application: ^Application),
-	last_time: u64,
-	delta_time: f32
+	window:     ^sdl.Window,
+	renderer:   ^sdl.Renderer,
+	logger:     log.Logger,
+	start:      proc(application: ^Application),
+	update:     proc(application: ^Application),
+	end:        proc(application: ^Application),
+	last_time:  u64,
+	delta_time: f32,
 }
 
 @(private)
@@ -29,6 +30,8 @@ application_init :: proc(
 	application: ^Application,
 	window_size: [2]i32 = {800, 600},
 ) -> Application_Error {
+	application.logger = log.create_console_logger()
+	context.logger = application.logger
 	ok := sdl.Init({.VIDEO})
 	if !ok {
 		log.errorf("Cannot initialize SDL {}", sdl.GetError())
@@ -49,7 +52,7 @@ application_init :: proc(
 		log.errorf("Cannot create renderer {}", sdl.GetError())
 		return .Renderer_Creation_Error
 	}
-	sdl.SetRenderLogicalPresentation(application.renderer, 800, 600, .LETTERBOX)
+	sdl.SetRenderLogicalPresentation(application.renderer, window_size.x, window_size.y, .LETTERBOX)
 	return .None
 }
 
@@ -67,12 +70,12 @@ app_init :: proc "c" (appstate: ^rawptr, argc: i32, argv: [^]cstring) -> sdl.App
 
 	appstate^ = rawptr(temporary_application_pointer)
 	temporary_application_pointer = nil
-
 	application := (^Application)(appstate^)
 	if application == nil {
 		log.errorf("Application is invalid")
 		return .FAILURE
 	}
+	context.logger = application.logger
 	if application.start != nil {
 		application.start(application)
 	}
@@ -88,6 +91,7 @@ app_iterate :: proc "c" (appstate: rawptr) -> sdl.AppResult {
 		log.errorf("Application is invalid")
 		return .FAILURE
 	}
+	context.logger = application.logger
 	input_state_update(&global_input_state)
 	if application.update != nil {
 		application.update(application)
@@ -124,6 +128,7 @@ app_quit :: proc "c" (appstate: rawptr, result: sdl.AppResult) {
 			sdl.DestroyWindow(application.window)
 		}
 	}
+	log.destroy_console_logger(application.logger)
 	input_state_destroy(&global_input_state)
 	sdl.Quit()
 }

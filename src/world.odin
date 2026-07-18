@@ -32,32 +32,37 @@ world_draw :: proc(world: ^World, renderer: ^Renderer, camera: Camera_2D, assets
 	}
 }
 
-world_set_tile :: proc(world: ^World, tile_coordinate: [2]int, kind: Tile_Kind) {
-	world.tiles[tile_coordinate.y][tile_coordinate.x].kind = kind
+world_set_tile :: proc(world: ^World, coordinate: [2]int, kind: Tile_Kind) {
+	world.tiles[coordinate.y][coordinate.x].kind = kind
 }
 
 world_till_layers :: proc(world: ^World, layers: int) {
-    if layers == 0 {
-        world_set_tile(world, {WORLD_CENTER_COORDINATE_X, WORLD_CENTER_COORDINATE_Y}, .Dry_Tilled_Middle)
-        return
-    }
-    start_coordinate_x := WORLD_CENTER_COORDINATE_X - layers
-    end_coordinate_x := WORLD_CENTER_COORDINATE_X + layers
-    start_coordinate_y := WORLD_CENTER_COORDINATE_Y - layers
-    end_coordinate_y := WORLD_CENTER_COORDINATE_Y + layers
-    for row_index in start_coordinate_y..= end_coordinate_y {
-        for column_index in start_coordinate_x..=end_coordinate_x {
-            if row_index == start_coordinate_y {
-                world_set_tile(world, {column_index, row_index}, .Dry_Tilled_Top)
-            }
-            else if row_index == end_coordinate_y {
-                world_set_tile(world, {column_index, row_index}, .Dry_Tilled_Bottom)
-            }
-            else {
-                world_set_tile(world, {column_index, row_index}, .Dry_Tilled_Middle)
-            }
-            
-        }
-    }
+	if layers == 0 {
+		world_set_tile(
+			world,
+			{WORLD_CENTER_COORDINATE_X, WORLD_CENTER_COORDINATE_Y},
+			.Dry_Tilled_Middle,
+		)
+		return
+	}
+	start_coordinate_x := WORLD_CENTER_COORDINATE_X - layers
+	end_coordinate_x := WORLD_CENTER_COORDINATE_X + layers
+	start_coordinate_y := WORLD_CENTER_COORDINATE_Y - layers
+	end_coordinate_y := WORLD_CENTER_COORDINATE_Y + layers
+	for row_index in start_coordinate_y ..= end_coordinate_y {
+		for column_index in start_coordinate_x ..= end_coordinate_x {
+			if row_index == start_coordinate_y {
+				world_set_tile(world, {column_index, row_index}, .Dry_Tilled_Top)
+			} else if row_index == end_coordinate_y {
+				world_set_tile(world, {column_index, row_index}, .Dry_Tilled_Bottom)
+			} else {
+				world_set_tile(world, {column_index, row_index}, .Dry_Tilled_Middle)
+			}
 
+		}
+	}
+}
+
+world_get_tile :: proc(world: World, coordinate: [2]int) -> Tile {
+	return world.tiles[coordinate.y][coordinate.x]
 }

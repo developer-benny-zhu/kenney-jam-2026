@@ -108,3 +108,19 @@ tile_draw :: proc(
 		)
 	}
 }
+
+tile_is_tilled :: proc(tile: Tile) -> bool {
+	#partial switch tile.kind {
+	case .Dry_Tilled_Single,
+	     .Dry_Tilled_Top,
+	     .Dry_Tilled_Middle,
+	     .Dry_Tilled_Bottom,
+	     .Watered_Tilled_Single,
+	     .Watered_Tilled_Top,
+	     .Watered_Tilled_Middle,
+	     .Watered_Tilled_Bottom:
+		return true
+	case:
+		return false
+	}
+}

@@ -21,7 +21,8 @@ WATERED_TILLED_BOTTOM_COORDINATE :: linalg.Vector2f32{1, 3}
 
 Assets :: struct {
 	kenney_tiny_farm_tile_sheet: ^sdl.Texture,
-    pointer_cursor: ^sdl.Cursor
+    pointer_cursor: ^sdl.Cursor,
+    watering_can_cursor: ^sdl.Cursor
 }
 
 assets_init :: proc(assets: ^Assets, renderer: ^Renderer) {
@@ -30,9 +31,11 @@ assets_init :: proc(assets: ^Assets, renderer: ^Renderer) {
 		"assets/kenney_tiny_farm/tile_sheet.png",
 	)
     assets.pointer_cursor = load_custom_cursor("assets/kenney_cursor_pixel_pack/pointer_cursor.png")
+    assets.watering_can_cursor = load_custom_cursor("assets/kenney_cursor_pixel_pack/watering_can_cursor.png")
 }
 
 assets_destroy :: proc(assets: ^Assets) {
 	destroy_texture(assets.kenney_tiny_farm_tile_sheet)
     destroy_cursor(assets.pointer_cursor)
+    destroy_cursor(assets.watering_can_cursor)
 }
