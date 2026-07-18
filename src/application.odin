@@ -3,9 +3,8 @@ package src
 
 import "base:runtime"
 import "core:log"
-import "core:math/linalg"
 import sdl "vendor:sdl3"
-
+import "core:time"
 Application_Error :: enum {
 	None,
 	Sdl_Initialization_Error,
@@ -19,6 +18,8 @@ Application :: struct {
 	start:    proc(application: ^Application),
 	update:   proc(application: ^Application),
 	end:      proc(application: ^Application),
+	last_time: u64,
+	delta_time: f32
 }
 
 @(private)
@@ -75,6 +76,7 @@ app_init :: proc "c" (appstate: ^rawptr, argc: i32, argv: [^]cstring) -> sdl.App
 	if application.start != nil {
 		application.start(application)
 	}
+	input_state_init(&global_input_state)
 	return .CONTINUE
 }
 
@@ -86,9 +88,13 @@ app_iterate :: proc "c" (appstate: rawptr) -> sdl.AppResult {
 		log.errorf("Application is invalid")
 		return .FAILURE
 	}
+	input_state_update(&global_input_state)
 	if application.update != nil {
 		application.update(application)
 	}
+	now := sdl.GetTicksNS()
+	application.delta_time = f32(now - application.last_time) / 1e9
+	application.last_time = now
 	sdl.RenderPresent(application.renderer)
 	return .CONTINUE
 }
@@ -118,5 +124,6 @@ app_quit :: proc "c" (appstate: rawptr, result: sdl.AppResult) {
 			sdl.DestroyWindow(application.window)
 		}
 	}
+	input_state_destroy(&global_input_state)
 	sdl.Quit()
 }

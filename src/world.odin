@@ -2,13 +2,19 @@ package src
 
 WORLD_SIZE_X :: 2048
 WORLD_SIZE_Y :: 2048
+WORLD_PIXEL_SIZE_X :: WORLD_SIZE_X * TILE_SIZE_X
+WORLD_PIXEL_SIZE_Y :: WORLD_SIZE_Y * TILE_SIZE_Y
+WORLD_CENTER_COORDINATE_X :: WORLD_SIZE_X - 1
+WORLD_CENTER_COORDINATE_Y :: WORLD_SIZE_Y - 1
+
 World :: struct {
 	tiles: [WORLD_SIZE_Y][WORLD_SIZE_X]Tile,
 }
 
-world_draw :: proc(world: ^World, renderer: ^Renderer, assets: ^Assets) {
+world_draw :: proc(world: ^World, renderer: ^Renderer, camera: Camera_2D, assets: ^Assets) {
 	draw_rectangle(
 		renderer,
+		camera,
 		{0, 0},
 		{WORLD_SIZE_X * TILE_SIZE_X, WORLD_SIZE_Y * TILE_SIZE_Y},
 		GRASS_COLOR,
@@ -18,9 +24,20 @@ world_draw :: proc(world: ^World, renderer: ^Renderer, assets: ^Assets) {
 			tile_draw(
 				&tile,
 				renderer,
+				camera,
 				assets,
 				{f32(column_index * TILE_SIZE_X), f32(row_index * TILE_SIZE_Y)},
 			)
 		}
 	}
+}
+
+world_set_tile :: proc(world: ^World, tile_coordinate: [2]int, kind: Tile_Kind) {
+	world.tiles[tile_coordinate.y][tile_coordinate.x].kind = kind
+}
+
+world_till_layer :: proc(world: ^World, layers: int) {
+    start_coordinate_x := WORLD_CENTER_COORDINATE_X - layers
+    start_coordinate_y := WORLD_CENTER_COORDINATE_Y - layers
+    
 }

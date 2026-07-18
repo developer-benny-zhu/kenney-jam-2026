@@ -8,8 +8,8 @@ TILE_SIZE_X :: 16
 TILE_SIZE_Y :: 16
 TILE_SIZE :: linalg.Vector2f32 {16, 16}
 CARROT_1_TILE_COORDINATE :: linalg.Vector2f32 {4, 0}
-DRY_TILLED_GROUND_COORDINATE :: linalg.Vector2f32 {0, 1}
-WATERED_TILLED_GROUND_COORDINATE :: linalg.Vector2f32 {1, 1}
+DRY_TILLED_SINGLE_COORDINATE :: linalg.Vector2f32 {0, 0}
+WATERED_TILLED_SINGLE_COORDINATE :: linalg.Vector2f32 {1, 0}
 
 Assets :: struct {
     kenney_tiny_farm_tile_sheet: ^sdl.Texture,

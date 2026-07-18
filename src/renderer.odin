@@ -14,7 +14,7 @@ clear_background :: proc(renderer: ^Renderer, color: Color) {
 load_texture :: proc(
 	renderer: ^Renderer,
 	$path: cstring,
-	scale_mode := sdl.ScaleMode.PIXELART,
+	scale_mode := sdl.ScaleMode.NEAREST,
 ) -> ^sdl.Texture {
 	texture := image.LoadTexture(renderer, path)
 	when ODIN_DEBUG {
@@ -23,7 +23,7 @@ load_texture :: proc(
 		}
 		return
 	}
-	sdl.SetTextureScaleMode(texture, .PIXELART)
+	sdl.SetTextureScaleMode(texture, scale_mode)
 	return texture
 }
 
@@ -33,6 +33,7 @@ destroy_texture :: proc(texture: ^Texture) {
 
 draw_texture :: proc(
 	renderer: ^Renderer,
+	camera: Camera_2D,
 	texture: ^Texture,
 	$origin: Origin,
 	position := linalg.Vector2f32{0, 0},
@@ -48,11 +49,12 @@ draw_texture :: proc(
 			return
 		}
 	}
+	screen_position := (position - camera.position) * camera.zoom + camera.origin
 	destination := sdl.FRect {
 		position.x,
 		position.y,
-		texture_width * scale.x,
-		texture_height * scale.y,
+		texture_width * scale.x * camera.zoom,
+		texture_height * scale.y * camera.zoom,
 	}
 	center: sdl.FPoint
 	when origin == .Top_Left {
@@ -75,6 +77,7 @@ draw_texture :: proc(
 
 draw_texture_from_tile_sheet :: proc(
 	renderer: ^Renderer,
+	camera: Camera_2D,
 	texture: ^Texture,
 	tile_size: linalg.Vector2f32,
 	tile_coordinate: linalg.Vector2f32,
@@ -98,7 +101,8 @@ draw_texture_from_tile_sheet :: proc(
 		tile_size.x,
 		tile_size.y,
 	}
-	destination := sdl.FRect{position.x, position.y, tile_size.x * scale.x, tile_size.y * scale.y}
+	screen_position := (position - camera.position) * camera.zoom + camera.origin
+	destination := sdl.FRect{screen_position.x, screen_position.y, tile_size.x * scale.x * camera.zoom, tile_size.y * scale.y * camera.zoom}
 	center: sdl.FPoint
 	when origin == .Top_Left {
 		center = {0, 0}
@@ -120,6 +124,7 @@ draw_texture_from_tile_sheet :: proc(
 
 draw_rectangle :: proc(
 	renderer: ^Renderer,
+	camera: Camera_2D,
 	position: linalg.Vector2f32,
 	size: linalg.Vector2f32,
 	color: Color,
@@ -130,7 +135,8 @@ draw_rectangle :: proc(
 			log.errorf("Failed to render draw color: {}", sdl.GetError())
 		}
 	}
-	rectangle := sdl.FRect{position.x, position.y, size.x, size.y}
+	screen_position := (position - camera.position) * camera.zoom + camera.origin
+	rectangle := sdl.FRect{screen_position.x, screen_position.y, size.x * camera.zoom, size.y * camera.zoom}
 	sdl.RenderFillRect(renderer, &rectangle)
 }
 
