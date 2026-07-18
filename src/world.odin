@@ -1,5 +1,6 @@
 package src
 
+import "core:math"
 import "vendor/gungnir"
 
 WORLD_SIZE_X :: 2048
@@ -13,7 +14,12 @@ World :: struct {
 	tiles: [WORLD_SIZE_Y][WORLD_SIZE_X]Tile,
 }
 
-world_draw :: proc(world: ^World, renderer: ^gungnir.Renderer, camera: gungnir.Camera_2D, assets: ^Assets) {
+world_draw :: proc(
+	world: ^World,
+	renderer: ^gungnir.Renderer,
+	camera: gungnir.Camera_2D,
+	assets: Assets,
+) {
 	gungnir.draw_rectangle(
 		renderer,
 		camera,
@@ -21,10 +27,22 @@ world_draw :: proc(world: ^World, renderer: ^gungnir.Renderer, camera: gungnir.C
 		{WORLD_SIZE_X * TILE_SIZE_X, WORLD_SIZE_Y * TILE_SIZE_Y},
 		GRASS_COLOR,
 	)
-	for &row, row_index in world.tiles {
-		for &tile, column_index in row {
+	start_row_index := int(
+		math.floor(gungnir.camera_2d_get_extents(camera, renderer).min.y / TILE_SIZE_Y),
+	)
+	end_row_index := int(
+		math.floor(gungnir.camera_2d_get_extents(camera, renderer).max.y / TILE_SIZE_Y),
+	)
+	start_column_index := int(
+		math.floor(gungnir.camera_2d_get_extents(camera, renderer).min.x / TILE_SIZE_X),
+	)
+	end_column_index := int(
+		math.floor(gungnir.camera_2d_get_extents(camera, renderer).max.x / TILE_SIZE_X),
+	)
+	for row_index in start_row_index ..= end_row_index {
+		for column_index in start_column_index ..= end_column_index {
 			tile_draw(
-				tile,
+				world.tiles[row_index][column_index],
 				renderer,
 				camera,
 				assets,

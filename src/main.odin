@@ -24,7 +24,7 @@ main :: proc() {
 update :: proc(application: ^gungnir.Application) {
 	color := gungnir.BLACK
 	gungnir.clear_background(application.renderer, color)
-	world_draw(&world, application.renderer, camera, &assets)
+	world_draw(&world, application.renderer, camera, assets)
 	if gungnir.are_keys_down(MOVE_UP) {
 		camera.position.y -= CAMERA_SPEED * application.delta_time
 	}
