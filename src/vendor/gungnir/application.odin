@@ -1,28 +1,26 @@
 package gungnir
 
-
 import "base:runtime"
+import "core:c"
 import "core:log"
-import "core:time"
 import sdl "vendor:sdl3"
 import "vendor:sdl3/ttf"
 
-Application_Error :: enum {
-	None,
-	Sdl_Initialization_Error,
-	Window_Creation_Error,
-	Renderer_Creation_Error,
+when ODIN_DEBUG {
+	Debug_Logger :: log.Logger
+} else {
+	Debug_Logger :: struct {}
 }
 
 Application :: struct {
 	window:     ^sdl.Window,
 	renderer:   ^sdl.Renderer,
-	logger:     log.Logger,
 	start:      proc(application: ^Application),
 	update:     proc(application: ^Application),
 	end:        proc(application: ^Application),
 	last_time:  u64,
 	delta_time: f32,
+	logger:     Debug_Logger,
 }
 
 @(private)
@@ -30,61 +28,70 @@ temporary_application_pointer: ^Application
 
 application_init :: proc(
 	application: ^Application,
-	window_size: [2]i32 = {800, 600},
-) -> Application_Error {
-	application.logger = log.create_console_logger()
-	context.logger = application.logger
-	ok := sdl.Init({.VIDEO})
-	if !ok {
-		log.errorf("Cannot initialize SDL {}", sdl.GetError())
-		return .Sdl_Initialization_Error
+	title: cstring = "SDL3",
+	window_size: [2]c.int = {800, 600},
+) {
+	when ODIN_DEBUG {
+		application.logger = log.create_console_logger()
+		context.logger = application.logger
 	}
-	application.window = sdl.CreateWindow(
-		"Application",
-		window_size.x,
-		window_size.y,
-		{.RESIZABLE},
-	)
+
+	if !sdl.Init({.VIDEO}) {
+		when ODIN_DEBUG do log.errorf("Failed to initialize SDL: %s", sdl.GetError())
+		return
+	}
+
+	if !ttf.Init() {
+		when ODIN_DEBUG do log.errorf("Failed to initialize TTF: %s", sdl.GetError())
+		return
+	}
+
+	application.window = sdl.CreateWindow(title, window_size.x, window_size.y, {.RESIZABLE})
 	if application.window == nil {
-		log.errorf("Cannot create window {}", sdl.GetError())
-		return .Window_Creation_Error
+		when ODIN_DEBUG do log.errorf("Failed to create window: %s", sdl.GetError())
+		return
 	}
+
 	application.renderer = sdl.CreateRenderer(application.window, nil)
 	if application.renderer == nil {
-		log.errorf("Cannot create renderer {}", sdl.GetError())
-		return .Renderer_Creation_Error
+		when ODIN_DEBUG do log.errorf("Cannot create renderer: %s", sdl.GetError())
+		return
 	}
-	ok = ttf.Init()
-	if !ok {
-		log.errorf("Failed to initialize TTF: {}", sdl.GetError())
-	}
-	sdl.SetRenderLogicalPresentation(application.renderer, window_size.x, window_size.y, .LETTERBOX)
-	return .None
+
+	sdl.SetRenderLogicalPresentation(
+		application.renderer,
+		window_size.x,
+		window_size.y,
+		.LETTERBOX,
+	)
 }
 
 application_run :: proc(application: ^Application) {
 	temporary_application_pointer = application
-	argc: i32 = 0
-	argv: [^]cstring = nil
-
-	sdl.EnterAppMainCallbacks(argc, argv, app_init, app_iterate, app_event, app_quit)
+	sdl.EnterAppMainCallbacks(0, nil, app_init, app_iterate, app_event, app_quit)
 }
 
 @(private)
 app_init :: proc "c" (appstate: ^rawptr, argc: i32, argv: [^]cstring) -> sdl.AppResult {
 	context = runtime.default_context()
 
-	appstate^ = rawptr(temporary_application_pointer)
+	application := temporary_application_pointer
+	appstate^ = rawptr(application)
 	temporary_application_pointer = nil
-	application := (^Application)(appstate^)
+
 	if application == nil {
-		log.errorf("Application is invalid")
+		when ODIN_DEBUG do log.error("Application is invalid")
 		return .FAILURE
 	}
-	context.logger = application.logger
+
+	when ODIN_DEBUG do context.logger = application.logger
+
 	if application.start != nil {
 		application.start(application)
+	} else {
+		when ODIN_DEBUG do log.error("Application start procedure was not assigned")
 	}
+
 	input_state_init(&global_input_state)
 	return .CONTINUE
 }
@@ -92,38 +99,46 @@ app_init :: proc "c" (appstate: ^rawptr, argc: i32, argv: [^]cstring) -> sdl.App
 @(private)
 app_iterate :: proc "c" (appstate: rawptr) -> sdl.AppResult {
 	context = runtime.default_context()
+
 	application := (^Application)(appstate)
 	if application == nil {
-		log.errorf("Application is invalid")
+		when ODIN_DEBUG do log.error("Application is invalid")
 		return .FAILURE
 	}
-	context.logger = application.logger
+
+	when ODIN_DEBUG do context.logger = application.logger
+
 	input_state_update(&global_input_state)
+
 	if application.update != nil {
 		application.update(application)
 	}
+
 	now := sdl.GetTicksNS()
 	application.delta_time = f32(now - application.last_time) / 1e9
 	application.last_time = now
+
 	sdl.RenderPresent(application.renderer)
 	return .CONTINUE
 }
 
 @(private)
 app_event :: proc "c" (appstate: rawptr, event: ^sdl.Event) -> sdl.AppResult {
-	context = runtime.default_context()
 	#partial switch event.type {
-	case sdl.EventType.QUIT:
-		return sdl.AppResult.SUCCESS
+	case .QUIT:
+		return .SUCCESS
 	}
-	return sdl.AppResult.CONTINUE
+	return .CONTINUE
 }
 
 @(private)
 app_quit :: proc "c" (appstate: rawptr, result: sdl.AppResult) {
 	context = runtime.default_context()
 	application := (^Application)(appstate)
+	when ODIN_DEBUG do context.logger = application.logger
 	if application != nil {
+		when ODIN_DEBUG do context.logger = application.logger
+
 		if application.end != nil {
 			application.end(application)
 		}
@@ -134,8 +149,8 @@ app_quit :: proc "c" (appstate: rawptr, result: sdl.AppResult) {
 			sdl.DestroyWindow(application.window)
 		}
 	}
-	log.destroy_console_logger(application.logger)
 	input_state_destroy(&global_input_state)
+	when ODIN_DEBUG do log.destroy_console_logger(application.logger)
 	ttf.Quit()
 	sdl.Quit()
 }

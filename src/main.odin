@@ -12,9 +12,9 @@ assets: Assets
 world: World
 camera: gungnir.Camera_2D
 CAMERA_SPEED :: 30
+
 main :: proc() {
-	context.logger = log.create_console_logger()
-	gungnir.application_init(&application, {320, 180})
+	gungnir.application_init(&application, window_size = {320, 180})
 	application.start = start
 	application.update = update
 	application.end = end
