@@ -20,27 +20,27 @@ update :: proc(application: ^Application) {
 	color := BLACK
 	clear_background(application.renderer, color)
 	world_draw(&world, application.renderer, camera, &assets)
-    if is_key_down(MOVE_UP) {
-        camera.position.y -= CAMERA_SPEED * application.delta_time
-    }
-    if is_key_down(MOVE_DOWN) {
-        camera.position.y += CAMERA_SPEED * application.delta_time
-    }
-    if is_key_down(MOVE_LEFT) {
-        camera.position.x -= CAMERA_SPEED * application.delta_time
-    }
-    if is_key_down(MOVE_RIGHT) {
-        camera.position.x += CAMERA_SPEED * application.delta_time
-    }
+	if is_key_down(MOVE_UP) {
+		camera.position.y -= CAMERA_SPEED * application.delta_time
+	}
+	if is_key_down(MOVE_DOWN) {
+		camera.position.y += CAMERA_SPEED * application.delta_time
+	}
+	if is_key_down(MOVE_LEFT) {
+		camera.position.x -= CAMERA_SPEED * application.delta_time
+	}
+	if is_key_down(MOVE_RIGHT) {
+		camera.position.x += CAMERA_SPEED * application.delta_time
+	}
 }
 
 start :: proc(application: ^Application) {
 	camera_2d_init(&camera)
 	camera_2d_set_origin(&camera, application.renderer, .Center)
-    camera.position = {WORLD_PIXEL_SIZE_X / 2, WORLD_PIXEL_SIZE_Y / 2}
-    world_set_tile(&world, {WORLD_CENTER_COORDINATE_X, WORLD_CENTER_COORDINATE_Y}, .Dry_Tilled_Single)
+	camera.position = {WORLD_PIXEL_SIZE_X / 2, WORLD_PIXEL_SIZE_Y / 2}
+	world_till_layers(&world, 3)
 	assets_init(&assets, application.renderer)
-	set_custom_cursor(application.renderer, "assets/kenney_cursor_pixel/pointer_cursor.png")
+    set_cursor(assets.pointer_cursor)
 }
 
 end :: proc(application: ^Application) {

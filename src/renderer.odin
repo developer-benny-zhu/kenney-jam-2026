@@ -102,7 +102,12 @@ draw_texture_from_tile_sheet :: proc(
 		tile_size.y,
 	}
 	screen_position := (position - camera.position) * camera.zoom + camera.origin
-	destination := sdl.FRect{screen_position.x, screen_position.y, tile_size.x * scale.x * camera.zoom, tile_size.y * scale.y * camera.zoom}
+	destination := sdl.FRect {
+		screen_position.x,
+		screen_position.y,
+		tile_size.x * scale.x * camera.zoom,
+		tile_size.y * scale.y * camera.zoom,
+	}
 	center: sdl.FPoint
 	when origin == .Top_Left {
 		center = {0, 0}
@@ -136,26 +141,41 @@ draw_rectangle :: proc(
 		}
 	}
 	screen_position := (position - camera.position) * camera.zoom + camera.origin
-	rectangle := sdl.FRect{screen_position.x, screen_position.y, size.x * camera.zoom, size.y * camera.zoom}
+	rectangle := sdl.FRect {
+		screen_position.x,
+		screen_position.y,
+		size.x * camera.zoom,
+		size.y * camera.zoom,
+	}
 	sdl.RenderFillRect(renderer, &rectangle)
 }
 
-set_custom_cursor :: proc(renderer: ^Renderer, path: cstring) {
+
+load_custom_cursor :: proc(path: cstring) -> ^sdl.Cursor {
 	surface := image.Load(path)
+	if surface == nil {
+		when ODIN_DEBUG do log.errorf("Failed to load cursor image: {}", sdl.GetError())
+		return nil
+	}
 	defer sdl.DestroySurface(surface)
+
 	custom_cursor := sdl.CreateColorCursor(surface, 0, 0)
 	when ODIN_DEBUG {
 		if custom_cursor == nil {
-			return
+			log.errorf("Failed to create color cursor: {}", sdl.GetError())
 		}
 	}
-	ok := sdl.SetCursor(custom_cursor)
-	when ODIN_DEBUG {
-		if !ok {
-			log.errorf("Failed to set cursor: {}", sdl.GetError())
-		}
+	return custom_cursor
+}
+set_cursor :: proc(cursor: ^sdl.Cursor) {
+	ok := sdl.SetCursor(cursor)
+	if !ok {
+		log.errorf("Failed to set cursor: {}", sdl.GetError())
 	}
+}
 
+destroy_cursor :: proc(cursor: ^sdl.Cursor) {
+	sdl.DestroyCursor(cursor)
 }
 
 show_cursor :: proc() {
