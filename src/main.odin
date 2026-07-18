@@ -47,7 +47,7 @@ update :: proc(application: ^gungnir.Application) {
 	   !tile_is_watered(world_get_tile(world, mouse_coordinate)) {
 		if gungnir.is_mouse_button_pressed(.LEFT) {
 			world_convert_tile_to_watered(&world, mouse_coordinate)
-			gungnir.play_sound(assets.watering_can_sound)
+			gungnir.play_audio(assets.watering_can_sound)
 		}
 	}
 }

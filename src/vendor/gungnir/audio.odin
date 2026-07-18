@@ -4,7 +4,12 @@ import "core:log"
 import sdl "vendor:sdl3"
 import "vendor:sdl3/mixer"
 
-Sound :: struct {
+
+Audio_Play_Mode :: enum {
+	Once,
+	Loop,
+}
+Audio :: struct {
 	audio: ^mixer.Audio,
 	track: ^mixer.Track,
 }
@@ -44,7 +49,7 @@ close_audio_device :: proc() {
 	sdl.QuitSubSystem({.AUDIO})
 }
 
-load_sound :: proc(file_path: cstring) -> Sound {
+load_audio :: proc(file_path: cstring) -> Audio {
 	if global_mixer == nil {
 		when ODIN_DEBUG {
 			log.error("Audio device has not been initialized")
@@ -78,26 +83,69 @@ load_sound :: proc(file_path: cstring) -> Sound {
 		return {}
 	}
 
-	return Sound{audio = audio, track = track}
+	return Audio{audio = audio, track = track}
 }
 
-destroy_sound :: proc(sound: Sound) {
-	if sound.track != nil {
-		mixer.DestroyTrack(sound.track)
+destroy_audio :: proc(audio: Audio) {
+	if audio.track != nil {
+		mixer.DestroyTrack(audio.track)
 	}
-	if sound.audio != nil {
-		mixer.DestroyAudio(sound.audio)
+
+	if audio.audio != nil {
+		mixer.DestroyAudio(audio.audio)
 	}
 }
 
-play_sound :: proc(sound: Sound) {
-	if sound.track == nil do return
+play_audio :: proc(audio: Audio, $play_mode: Audio_Play_Mode) {
+	if audio.track == nil {
+		return
+	}
 
-	ok := mixer.SetTrackPlaybackPosition(sound.track, 0)
-	ok = mixer.PlayTrack(sound.track, 0)
+	ok := mixer.SetTrackPlaybackPosition(audio.track, 0)
+	when play_mode == .Once {
+		ok = mixer.PlayTrack(audio.track, 0)
+	}
+	when player_mode == .Loop {
+		ok = mixer.PlayTrack(audio.track, -1)
+	}
 }
 
-is_sound_playing :: proc(sound: Sound) -> bool {
-	if sound.track == nil do return false
-	return mixer.TrackPlaying(sound.track)
+stop_audio :: proc(audio: Audio) {
+	if audio.track == nil {
+		return
+	}
+
+	ok := mixer.StopTrack(audio.track, 0)
+}
+
+pause_audio :: proc(audio: Audio) {
+	if audio.track == nil {
+		return
+	}
+
+	ok := mixer.PauseTrack(audio.track)
+}
+
+resume_audio :: proc(audio: Audio) {
+	if audio.track == nil {
+		return
+	}
+
+	ok := mixer.ResumeTrack(audio.track)
+}
+
+is_audio_playing :: proc(audio: Audio) -> bool {
+	if audio.track == nil {
+		return false
+	}
+
+	return mixer.TrackPlaying(audio.track)
+}
+
+set_audio_volume :: proc(audio: Audio, volume: f32) {
+	if audio.track == nil {
+		return
+	}
+
+	ok := mixer.SetTrackGain(audio.track, volume)
 }

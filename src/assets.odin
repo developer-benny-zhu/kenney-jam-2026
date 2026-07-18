@@ -63,7 +63,7 @@ Assets :: struct {
 	kenney_tiny_farm_tile_sheet: ^sdl.Texture,
 	pointer_cursor:              ^sdl.Cursor,
 	watering_can_cursor:         ^sdl.Cursor,
-	watering_can_sound:          gungnir.Sound,
+	watering_can_sound:          gungnir.Audio,
 }
 
 assets_init :: proc(assets: ^Assets, renderer: ^gungnir.Renderer) {
@@ -77,12 +77,12 @@ assets_init :: proc(assets: ^Assets, renderer: ^gungnir.Renderer) {
 	assets.watering_can_cursor = gungnir.load_custom_cursor(
 		"assets/kenney_cursor_pixel_pack/watering_can_cursor.png",
 	)
-	assets.watering_can_sound = gungnir.load_sound("assets/watering_can_sound.wav")
+	assets.watering_can_sound = gungnir.load_audio("assets/watering_can_sound.wav")
 }
 
 assets_destroy :: proc(assets: ^Assets) {
 	gungnir.destroy_texture(assets.kenney_tiny_farm_tile_sheet)
 	gungnir.destroy_cursor(assets.pointer_cursor)
 	gungnir.destroy_cursor(assets.watering_can_cursor)
-	gungnir.destroy_sound(assets.watering_can_sound)
+	gungnir.destroy_audio(assets.watering_can_sound)
 }
