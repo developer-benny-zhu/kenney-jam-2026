@@ -37,10 +37,12 @@ application_init :: proc(
 		context.logger = application.logger
 	}
 
-	if !sdl.Init({.VIDEO, .AUDIO}) {
+	if !sdl.Init({.VIDEO}) {
 		when ODIN_DEBUG do log.errorf("Failed to initialize SDL: %s", sdl.GetError())
 		return
 	}
+
+	init_audio_device()
 
 	if !ttf.Init() {
 		when ODIN_DEBUG do log.errorf("Failed to initialize TTF: %s", sdl.GetError())
@@ -158,5 +160,6 @@ app_quit :: proc "c" (appstate: rawptr, result: sdl.AppResult) {
 	input_state_destroy(&global_input_state)
 	when ODIN_DEBUG do log.destroy_console_logger(application.logger)
 	ttf.Quit()
+	close_audio_device()
 	sdl.Quit()
 }

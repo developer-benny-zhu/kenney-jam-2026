@@ -43,9 +43,11 @@ update :: proc(application: ^gungnir.Application) {
 		int(math.floor(mouse_world_position.x / f32(TILE_SIZE_X))),
 		int(math.floor(mouse_world_position.y / f32(TILE_SIZE_Y))),
 	}
-	if tile_is_tilled(world_get_tile(world, mouse_coordinate)) {
+	if tile_is_tilled(world_get_tile(world, mouse_coordinate)) &&
+	   !tile_is_watered(world_get_tile(world, mouse_coordinate)) {
 		if gungnir.is_mouse_button_pressed(.LEFT) {
 			world_convert_tile_to_watered(&world, mouse_coordinate)
+			gungnir.play_sound(assets.watering_can_sound)
 		}
 	}
 }
