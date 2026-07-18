@@ -86,3 +86,16 @@ world_till_layers :: proc(world: ^World, layers: int) {
 world_get_tile :: proc(world: World, coordinate: [2]int) -> Tile {
 	return world.tiles[coordinate.y][coordinate.x]
 }
+
+world_convert_tile_to_watered :: proc(world: ^World, coordinate: [2]int) {
+	tile := &world.tiles[coordinate.y][coordinate.x]
+
+	#partial switch tile.kind {
+	case .Dry_Tilled_Top:
+		tile.kind = .Watered_Tilled_Top
+	case .Dry_Tilled_Middle:
+		tile.kind = .Watered_Tilled_Middle
+	case .Dry_Tilled_Bottom:
+		tile.kind = .Watered_Tilled_Bottom
+	}
+}

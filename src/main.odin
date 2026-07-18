@@ -38,6 +38,16 @@ update :: proc(application: ^gungnir.Application) {
 		camera.position.x += CAMERA_SPEED * application.delta_time
 	}
 	update_mouse_state(application)
+	mouse_world_position := gungnir.get_mouse_world_position(application.renderer, camera)
+	mouse_coordinate := [2]int {
+		int(math.floor(mouse_world_position.x / f32(TILE_SIZE_X))),
+		int(math.floor(mouse_world_position.y / f32(TILE_SIZE_Y))),
+	}
+	if tile_is_tilled(world_get_tile(world, mouse_coordinate)) {
+		if gungnir.is_mouse_button_pressed(.LEFT) {
+			world_convert_tile_to_watered(&world, mouse_coordinate)
+		}
+	}
 }
 update_mouse_state :: proc(application: ^gungnir.Application) {
 	mouse_world_position := gungnir.get_mouse_world_position(application.renderer, camera)

@@ -37,7 +37,7 @@ application_init :: proc(
 		context.logger = application.logger
 	}
 
-	if !sdl.Init({.VIDEO}) {
+	if !sdl.Init({.VIDEO, .AUDIO}) {
 		when ODIN_DEBUG do log.errorf("Failed to initialize SDL: %s", sdl.GetError())
 		return
 	}

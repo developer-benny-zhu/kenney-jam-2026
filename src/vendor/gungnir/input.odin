@@ -25,12 +25,6 @@ input_state_init :: proc(input_state: ^Input_State) {
 	}
 	input_state.current_keys = make([]bool, number_of_keys)
 	input_state.previous_keys = make([]bool, number_of_keys)
-
-	sdl_slice := slice.from_ptr(keyboard_state, int(number_of_keys))
-	copy(input_state.current_keys, sdl_slice)
-
-	input_state.previous_mouse_buttons = input_state.current_mouse_buttons
-	input_state.current_mouse_buttons = sdl.GetMouseState(nil, nil)
 }
 
 input_state_update :: proc(input_state: ^Input_State) {
@@ -39,6 +33,8 @@ input_state_update :: proc(input_state: ^Input_State) {
 	copy(input_state.previous_keys, input_state.current_keys)
 	sdl_slice := slice.from_ptr(keyboard_state, int(number_of_keys))
 	copy(input_state.current_keys, sdl_slice)
+	input_state.previous_mouse_buttons = input_state.current_mouse_buttons
+	input_state.current_mouse_buttons = sdl.GetMouseState(nil, nil)
 }
 
 input_state_destroy :: proc(input_state: ^Input_State) {
@@ -91,7 +87,7 @@ are_keys_released :: proc(scancodes: []sdl.Scancode) -> bool {
 
 are_mouse_buttons_down :: proc(buttons: []sdl.MouseButtonFlag) -> bool {
 	for button in buttons {
-		if button in global_input_state.current_mouse_buttons {
+		if is_mouse_button_down(button) {
 			return true
 		}
 	}
@@ -100,9 +96,7 @@ are_mouse_buttons_down :: proc(buttons: []sdl.MouseButtonFlag) -> bool {
 
 are_mouse_buttons_pressed :: proc(buttons: []sdl.MouseButtonFlag) -> bool {
 	for button in buttons {
-		current := button in global_input_state.current_mouse_buttons
-		previous := button in global_input_state.previous_mouse_buttons
-		if current && !previous {
+		if is_mouse_button_pressed(button) {
 			return true
 		}
 	}
@@ -111,11 +105,25 @@ are_mouse_buttons_pressed :: proc(buttons: []sdl.MouseButtonFlag) -> bool {
 
 are_mouse_buttons_released :: proc(buttons: []sdl.MouseButtonFlag) -> bool {
 	for button in buttons {
-		current := button in global_input_state.current_mouse_buttons
-		previous := button in global_input_state.previous_mouse_buttons
-		if !current && previous {
+		if is_mouse_button_released(button) {
 			return true
 		}
 	}
 	return false
+}
+
+is_mouse_button_down :: proc(button: sdl.MouseButtonFlag) -> bool {
+	return button in global_input_state.current_mouse_buttons
+}
+
+is_mouse_button_pressed :: proc(button: sdl.MouseButtonFlag) -> bool {
+	current := button in global_input_state.current_mouse_buttons
+	previous := button in global_input_state.previous_mouse_buttons
+	return current && !previous
+}
+
+is_mouse_button_released :: proc(button: sdl.MouseButtonFlag) -> bool {
+	current := button in global_input_state.current_mouse_buttons
+	previous := button in global_input_state.previous_mouse_buttons
+	return !current && previous
 }
