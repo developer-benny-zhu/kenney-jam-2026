@@ -1,10 +1,11 @@
-package src
+package gungnir
 
 
 import "base:runtime"
 import "core:log"
 import "core:time"
 import sdl "vendor:sdl3"
+
 Application_Error :: enum {
 	None,
 	Sdl_Initialization_Error,

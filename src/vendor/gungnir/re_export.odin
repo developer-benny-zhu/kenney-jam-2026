@@ -1,4 +1,4 @@
-package src
+package gungnir
 
 import sdl "vendor:sdl3"
 

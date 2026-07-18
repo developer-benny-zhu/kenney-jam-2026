@@ -2,8 +2,9 @@ package src
 
 import "core:math/linalg"
 import sdl "vendor:sdl3"
+import "vendor/gungnir"
 
-GRASS_COLOR :: Color{132, 198, 105, 255}
+GRASS_COLOR :: gungnir.Color{132, 198, 105, 255}
 TILE_SIZE_X :: 16
 TILE_SIZE_Y :: 16
 TILE_SIZE :: linalg.Vector2f32{16, 16}
@@ -25,17 +26,17 @@ Assets :: struct {
     watering_can_cursor: ^sdl.Cursor
 }
 
-assets_init :: proc(assets: ^Assets, renderer: ^Renderer) {
-	assets.kenney_tiny_farm_tile_sheet = load_texture(
+assets_init :: proc(assets: ^Assets, renderer: ^gungnir.Renderer) {
+	assets.kenney_tiny_farm_tile_sheet = gungnir.load_texture(
 		renderer,
 		"assets/kenney_tiny_farm/tile_sheet.png",
 	)
-    assets.pointer_cursor = load_custom_cursor("assets/kenney_cursor_pixel_pack/pointer_cursor.png")
-    assets.watering_can_cursor = load_custom_cursor("assets/kenney_cursor_pixel_pack/watering_can_cursor.png")
+    assets.pointer_cursor = gungnir.load_custom_cursor("assets/kenney_cursor_pixel_pack/pointer_cursor.png")
+    assets.watering_can_cursor = gungnir.load_custom_cursor("assets/kenney_cursor_pixel_pack/watering_can_cursor.png")
 }
 
 assets_destroy :: proc(assets: ^Assets) {
-	destroy_texture(assets.kenney_tiny_farm_tile_sheet)
-    destroy_cursor(assets.pointer_cursor)
-    destroy_cursor(assets.watering_can_cursor)
+	gungnir.destroy_texture(assets.kenney_tiny_farm_tile_sheet)
+    gungnir.destroy_cursor(assets.pointer_cursor)
+    gungnir.destroy_cursor(assets.watering_can_cursor)
 }

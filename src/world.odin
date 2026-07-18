@@ -1,5 +1,7 @@
 package src
 
+import "vendor/gungnir"
+
 WORLD_SIZE_X :: 2048
 WORLD_SIZE_Y :: 2048
 WORLD_PIXEL_SIZE_X :: WORLD_SIZE_X * TILE_SIZE_X
@@ -11,8 +13,8 @@ World :: struct {
 	tiles: [WORLD_SIZE_Y][WORLD_SIZE_X]Tile,
 }
 
-world_draw :: proc(world: ^World, renderer: ^Renderer, camera: Camera_2D, assets: ^Assets) {
-	draw_rectangle(
+world_draw :: proc(world: ^World, renderer: ^gungnir.Renderer, camera: gungnir.Camera_2D, assets: ^Assets) {
+	gungnir.draw_rectangle(
 		renderer,
 		camera,
 		{0, 0},
@@ -22,7 +24,7 @@ world_draw :: proc(world: ^World, renderer: ^Renderer, camera: Camera_2D, assets
 	for &row, row_index in world.tiles {
 		for &tile, column_index in row {
 			tile_draw(
-				&tile,
+				tile,
 				renderer,
 				camera,
 				assets,

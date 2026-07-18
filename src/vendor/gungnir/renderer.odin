@@ -1,4 +1,4 @@
-package src
+package gungnir
 
 import "core:log"
 import "core:math/linalg"

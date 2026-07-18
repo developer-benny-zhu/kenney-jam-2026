@@ -1,6 +1,7 @@
 package src
 
 import "core:math/linalg"
+import "vendor/gungnir"
 
 Tile :: struct {
 	kind: Tile_Kind,
@@ -19,15 +20,15 @@ Tile_Kind :: enum {
 }
 
 tile_draw :: proc(
-	tile: ^Tile,
-	renderer: ^Renderer,
-	camera: Camera_2D,
+	tile: Tile,
+	renderer: ^gungnir.Renderer,
+	camera: gungnir.Camera_2D,
 	assets: ^Assets,
 	position: linalg.Vector2f32,
 ) {
 	#partial switch tile.kind {
 	case .Dry_Tilled_Single:
-		draw_texture_from_tile_sheet(
+		gungnir.draw_texture_from_tile_sheet(
 			renderer,
 			camera,
 			assets.kenney_tiny_farm_tile_sheet,
@@ -37,7 +38,7 @@ tile_draw :: proc(
 			position,
 		)
 	case .Dry_Tilled_Top:
-		draw_texture_from_tile_sheet(
+		gungnir.draw_texture_from_tile_sheet(
 			renderer,
 			camera,
 			assets.kenney_tiny_farm_tile_sheet,
@@ -47,7 +48,7 @@ tile_draw :: proc(
 			position,
 		)
 	case .Dry_Tilled_Middle:
-		draw_texture_from_tile_sheet(
+		gungnir.draw_texture_from_tile_sheet(
 			renderer,
 			camera,
 			assets.kenney_tiny_farm_tile_sheet,
@@ -57,7 +58,7 @@ tile_draw :: proc(
 			position,
 		)
 	case .Dry_Tilled_Bottom:
-		draw_texture_from_tile_sheet(
+		gungnir.draw_texture_from_tile_sheet(
 			renderer,
 			camera,
 			assets.kenney_tiny_farm_tile_sheet,
@@ -67,7 +68,7 @@ tile_draw :: proc(
 			position,
 		)
 	case .Watered_Tilled_Single:
-		draw_texture_from_tile_sheet(
+		gungnir.draw_texture_from_tile_sheet(
 			renderer,
 			camera,
 			assets.kenney_tiny_farm_tile_sheet,
@@ -77,7 +78,7 @@ tile_draw :: proc(
 			position,
 		)
 	case .Watered_Tilled_Top:
-		draw_texture_from_tile_sheet(
+		gungnir.draw_texture_from_tile_sheet(
 			renderer,
 			camera,
 			assets.kenney_tiny_farm_tile_sheet,
@@ -87,7 +88,7 @@ tile_draw :: proc(
 			position,
 		)
 	case .Watered_Tilled_Middle:
-		draw_texture_from_tile_sheet(
+		gungnir.draw_texture_from_tile_sheet(
 			renderer,
 			camera,
 			assets.kenney_tiny_farm_tile_sheet,
@@ -97,7 +98,7 @@ tile_draw :: proc(
 			position,
 		)
 	case .Watered_Tilled_Bottom:
-		draw_texture_from_tile_sheet(
+		gungnir.draw_texture_from_tile_sheet(
 			renderer,
 			camera,
 			assets.kenney_tiny_farm_tile_sheet,

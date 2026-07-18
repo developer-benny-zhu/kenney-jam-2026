@@ -1,4 +1,4 @@
-package src
+package gungnir
 
 Color :: struct {
 	red:   u8,
