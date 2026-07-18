@@ -5,6 +5,7 @@ import "base:runtime"
 import "core:log"
 import "core:time"
 import sdl "vendor:sdl3"
+import "vendor:sdl3/ttf"
 
 Application_Error :: enum {
 	None,
@@ -52,6 +53,10 @@ application_init :: proc(
 	if application.renderer == nil {
 		log.errorf("Cannot create renderer {}", sdl.GetError())
 		return .Renderer_Creation_Error
+	}
+	ok = ttf.Init()
+	if !ok {
+		log.errorf("Failed to initialize TTF: {}", sdl.GetError())
 	}
 	sdl.SetRenderLogicalPresentation(application.renderer, window_size.x, window_size.y, .LETTERBOX)
 	return .None
@@ -131,5 +136,6 @@ app_quit :: proc "c" (appstate: rawptr, result: sdl.AppResult) {
 	}
 	log.destroy_console_logger(application.logger)
 	input_state_destroy(&global_input_state)
+	ttf.Quit()
 	sdl.Quit()
 }
