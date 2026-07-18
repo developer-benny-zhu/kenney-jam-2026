@@ -48,27 +48,41 @@ input_state_destroy :: proc(input_state: ^Input_State) {
 
 are_keys_down :: proc(scancodes: []sdl.Scancode) -> bool {
 	for scancode in scancodes {
-		if global_input_state.current_keys[scancode] {
+		if is_key_down(scancode) {
 			return true
 		}
 	}
 	return false
+}
+
+is_key_down :: proc(scancode: sdl.Scancode) -> bool {
+	return global_input_state.current_keys[scancode]
 }
 
 are_keys_pressed :: proc(scancodes: []sdl.Scancode) -> bool {
 	for scancode in scancodes {
-		if global_input_state.current_keys[scancode] &&
-		   !global_input_state.previous_keys[scancode] {
+		if is_key_pressed(scancode) {
 			return true
 		}
 	}
 	return false
 }
 
+is_key_pressed :: proc(scancode: sdl.Scancode) -> bool {
+	current := global_input_state.current_keys[scancode]
+	previous := global_input_state.previous_keys[scancode]
+	return current && !previous
+}
+
+is_key_released :: proc(scancode: sdl.Scancode) -> bool {
+	current := global_input_state.current_keys[scancode]
+	previous := global_input_state.previous_keys[scancode]
+	return !current && previous
+}
+
 are_keys_released :: proc(scancodes: []sdl.Scancode) -> bool {
 	for scancode in scancodes {
-		if !global_input_state.current_keys[scancode] &&
-		   global_input_state.previous_keys[scancode] {
+		if is_key_released(scancode) {
 			return true
 		}
 	}

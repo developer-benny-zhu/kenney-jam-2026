@@ -8,8 +8,8 @@ Crop :: struct {
 }
 
 Crop_Kind :: enum u8 {
-	Carrot_1,
 	None,
+	Carrot_1,
 	Carrot_2,
 	Carrot_3,
 	Dead_Carrot,
