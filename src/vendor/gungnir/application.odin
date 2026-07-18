@@ -13,14 +13,15 @@ when ODIN_DEBUG {
 }
 
 Application :: struct {
-	window:     ^sdl.Window,
-	renderer:   ^sdl.Renderer,
-	start:      proc(application: ^Application),
-	update:     proc(application: ^Application),
-	end:        proc(application: ^Application),
-	last_time:  u64,
-	delta_time: f32,
-	logger:     Debug_Logger,
+	window:      ^Window,
+	renderer:    ^Renderer,
+	text_engine: ^TextEngine,
+	start:       proc(application: ^Application),
+	update:      proc(application: ^Application),
+	end:         proc(application: ^Application),
+	last_time:   u64,
+	delta_time:  f32,
+	logger:      Debug_Logger,
 }
 
 @(private)
@@ -55,6 +56,11 @@ application_init :: proc(
 	application.renderer = sdl.CreateRenderer(application.window, nil)
 	if application.renderer == nil {
 		when ODIN_DEBUG do log.errorf("Cannot create renderer: %s", sdl.GetError())
+		return
+	}
+	application.text_engine = ttf.CreateRendererTextEngine(application.renderer)
+	if application.text_engine == nil {
+		when ODIN_DEBUG do log.errorf("Cannot create text engine: %s", sdl.GetError())
 		return
 	}
 
