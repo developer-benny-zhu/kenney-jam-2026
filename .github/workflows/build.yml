@@ -31,12 +31,18 @@ jobs:
         with:
           version: latest 
 
+      - name: Install SDL3 Dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl3-dev libsdl3-image-dev libsdl3-mixer-dev libsdl3-ttf-dev
+
       - name: Create Build Directory
         run: mkdir build
 
       - name: Build with Maximum Optimization
         run: |
-          odin build src -out:${{ matrix.output_name }} -o:aggressive -no-bounds-check -disable-assert
+          odin build src -out:${{ matrix.output_name }} -o:speed -no-bounds-check -disable-assert
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
