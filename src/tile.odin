@@ -145,19 +145,24 @@ tile_has_crop :: proc(tile: Tile) -> bool {
 }
 
 tile_set_crop :: proc(tile: ^Tile, seed: Seed) {
+	tile.crop.growth_timer = 0
 	switch seed.kind {
-		case .Carrot:
-			tile.crop.kind = .Carrot_1
-		case .Radish:
-			tile.crop.kind = .Radish_1
-		case .Corn:
-			tile.crop.kind = .Corn_1
-		case .Tomato:
-			tile.crop.kind = .Tomato_1
-		case .Lettuce:
-			tile.crop.kind = .Lettuce_1
-		case .Wheat:
-			tile.crop.kind = .Wheat_1
-
+	case .Carrot:
+		tile.crop.kind = .Carrot_1
+	case .Radish:
+		tile.crop.kind = .Radish_1
+	case .Corn:
+		tile.crop.kind = .Corn_1
+	case .Tomato:
+		tile.crop.kind = .Tomato_1
+	case .Lettuce:
+		tile.crop.kind = .Lettuce_1
+	case .Wheat:
+		tile.crop.kind = .Wheat_1
 	}
+}
+
+tile_remove_crop :: proc(tile: ^Tile) {
+	tile.crop.kind = .None
+	tile.crop.growth_timer = 0
 }

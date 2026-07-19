@@ -52,17 +52,40 @@ world_draw :: proc(
 	}
 }
 
+world_update :: proc(world: ^World, delta_time: f32) {
+	for row_index in 0 ..< WORLD_SIZE_Y {
+		for column_index in 0 ..< WORLD_SIZE_X {
+			tile := &world.tiles[row_index][column_index]
+
+			if tile_has_crop(tile^) && tile_is_watered(tile^) {
+				if !crop_is_fully_grown(tile.crop) {
+					tile.crop.growth_timer += delta_time
+
+					if tile.crop.growth_timer >= CROP_GROW_TIME {
+						tile.crop.growth_timer = 0
+						crop_grow(&tile.crop)
+						world_convert_tile_to_dry(world, {column_index, row_index})
+					}
+				}
+			}
+		}
+	}
+}
+
 world_set_tile :: proc(world: ^World, coordinate: [2]int, kind: Tile_Kind) {
 	world.tiles[coordinate.y][coordinate.x].kind = kind
 }
 
 world_till_layers :: proc(world: ^World, layers: int) {
 	if layers == 0 {
-		world_set_tile(
-			world,
-			{WORLD_CENTER_COORDINATE_X, WORLD_CENTER_COORDINATE_Y},
-			.Dry_Tilled_Middle,
-		)
+		current_kind := world.tiles[WORLD_CENTER_COORDINATE_Y][WORLD_CENTER_COORDINATE_X].kind
+		if current_kind == .Normal {
+			world_set_tile(
+				world,
+				{WORLD_CENTER_COORDINATE_X, WORLD_CENTER_COORDINATE_Y},
+				.Dry_Tilled_Middle,
+			)
+		}
 		return
 	}
 	start_coordinate_x := WORLD_CENTER_COORDINATE_X - layers
@@ -78,7 +101,6 @@ world_till_layers :: proc(world: ^World, layers: int) {
 			} else {
 				world_set_tile(world, {column_index, row_index}, .Dry_Tilled_Middle)
 			}
-
 		}
 	}
 }
@@ -91,11 +113,28 @@ world_convert_tile_to_watered :: proc(world: ^World, coordinate: [2]int) {
 	tile := &world.tiles[coordinate.y][coordinate.x]
 
 	#partial switch tile.kind {
+	case .Dry_Tilled_Single:
+		tile.kind = .Watered_Tilled_Single
 	case .Dry_Tilled_Top:
 		tile.kind = .Watered_Tilled_Top
 	case .Dry_Tilled_Middle:
 		tile.kind = .Watered_Tilled_Middle
 	case .Dry_Tilled_Bottom:
 		tile.kind = .Watered_Tilled_Bottom
+	}
+}
+
+world_convert_tile_to_dry :: proc(world: ^World, coordinate: [2]int) {
+	tile := &world.tiles[coordinate.y][coordinate.x]
+
+	#partial switch tile.kind {
+	case .Watered_Tilled_Single:
+		tile.kind = .Dry_Tilled_Single
+	case .Watered_Tilled_Top:
+		tile.kind = .Dry_Tilled_Top
+	case .Watered_Tilled_Middle:
+		tile.kind = .Dry_Tilled_Middle
+	case .Watered_Tilled_Bottom:
+		tile.kind = .Dry_Tilled_Bottom
 	}
 }

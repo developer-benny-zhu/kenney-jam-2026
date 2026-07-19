@@ -3,8 +3,11 @@ package src
 import "core:math/linalg"
 import "vendor/gungnir"
 
+CROP_GROW_TIME :: 5.0
+
 Crop :: struct {
-	kind: Crop_Kind,
+	kind:         Crop_Kind,
+	growth_timer: f32,
 }
 
 Crop_Kind :: enum u8 {
@@ -34,6 +37,64 @@ Crop_Kind :: enum u8 {
 	Wheat_3,
 	Dead_Wheat,
 }
+
+crop_is_fully_grown :: proc(crop: Crop) -> bool {
+	#partial switch crop.kind {
+	case .Carrot_3, .Radish_3, .Corn_3, .Tomato_3, .Lettuce_3, .Wheat_3:
+		return true
+	case:
+		return false
+	}
+}
+
+crop_grow :: proc(crop: ^Crop) {
+	#partial switch crop.kind {
+	case .Carrot_1:
+		crop.kind = .Carrot_2
+	case .Carrot_2:
+		crop.kind = .Carrot_3
+	case .Radish_1:
+		crop.kind = .Radish_2
+	case .Radish_2:
+		crop.kind = .Radish_3
+	case .Corn_1:
+		crop.kind = .Corn_2
+	case .Corn_2:
+		crop.kind = .Corn_3
+	case .Tomato_1:
+		crop.kind = .Tomato_2
+	case .Tomato_2:
+		crop.kind = .Tomato_3
+	case .Lettuce_1:
+		crop.kind = .Lettuce_2
+	case .Lettuce_2:
+		crop.kind = .Lettuce_3
+	case .Wheat_1:
+		crop.kind = .Wheat_2
+	case .Wheat_2:
+		crop.kind = .Wheat_3
+	}
+}
+
+crop_sell_value :: proc(kind: Crop_Kind) -> int {
+	#partial switch kind {
+	case .Carrot_3:
+		return 5
+	case .Radish_3:
+		return 8
+	case .Corn_3:
+		return 12
+	case .Tomato_3:
+		return 15
+	case .Lettuce_3:
+		return 10
+	case .Wheat_3:
+		return 6
+	case:
+		return 0
+	}
+}
+
 crop_draw :: proc(
 	crop: Crop,
 	renderer: ^gungnir.Renderer,
@@ -42,7 +103,6 @@ crop_draw :: proc(
 	position: linalg.Vector2f32,
 ) {
 	#partial switch crop.kind {
-
 	case .Carrot_1:
 		gungnir.draw_texture_from_tile_sheet(
 			renderer,
@@ -50,7 +110,7 @@ crop_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			CARROT_1_TILE_COORDINATE,
-		gungnir.Origin.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Carrot_2:
@@ -210,7 +270,7 @@ crop_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			LETTUCE_1_TILE_COORDINATE,
-		gungnir.Origin.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Lettuce_2:
@@ -220,7 +280,7 @@ crop_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			LETTUCE_2_TILE_COORDINATE,
-		gungnir.Origin.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Lettuce_3:
@@ -230,7 +290,7 @@ crop_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			LETTUCE_3_TILE_COORDINATE,
-		gungnir.Origin.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Dead_Lettuce:
@@ -240,7 +300,7 @@ crop_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			DEAD_LETTUCE_TILE_COORDINATE,
-		gungnir.Origin.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Wheat_1:
@@ -250,7 +310,7 @@ crop_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			WHEAT_1_TILE_COORDINATE,
-		gungnir.Origin.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Wheat_2:
@@ -260,7 +320,7 @@ crop_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			WHEAT_2_TILE_COORDINATE,
-		gungnir.Origin.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Wheat_3:
@@ -270,7 +330,7 @@ crop_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			WHEAT_3_TILE_COORDINATE,
-		gungnir.Origin.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Dead_Wheat:
@@ -280,9 +340,8 @@ crop_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			DEAD_WHEAT_TILE_COORDINATE,
-		gungnir.Origin.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	}
 }
-

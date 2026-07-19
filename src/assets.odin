@@ -10,7 +10,6 @@ TILE_SIZE_X :: 16
 TILE_SIZE_Y :: 16
 TILE_SIZE :: linalg.Vector2f32{16, 16}
 
-
 CARROT_1_TILE_COORDINATE :: linalg.Vector2f32{4, 0}
 CARROT_2_TILE_COORDINATE :: linalg.Vector2f32{5, 0}
 CARROT_3_TILE_COORDINATE :: linalg.Vector2f32{6, 0}
@@ -68,13 +67,16 @@ Assets :: struct {
 	kenney_tiny_farm_tile_sheet:    ^sdl.Texture,
 	pointer_cursor:                 ^sdl.Cursor,
 	watering_can_cursor:            ^sdl.Cursor,
+	harvest_cursor:                 ^sdl.Cursor,
 	carrot_seed_cursor:             ^sdl.Cursor,
 	radish_seed_cursor:             ^sdl.Cursor,
 	corn_seed_cursor:               ^sdl.Cursor,
 	tomato_seed_cursor:             ^sdl.Cursor,
 	lettuce_seed_cursor:            ^sdl.Cursor,
 	wheat_seed_cursor:              ^sdl.Cursor,
+	safe_haven:                     gungnir.Audio,
 	watering_can_sound:             gungnir.Audio,
+	harvest_sound:                  gungnir.Audio,
 	kenney_pixel:                   ^gungnir.Font,
 	press_1_to_equip_carrot_seeds:  ^gungnir.Text,
 	press_2_to_equip_radish_seeds:  ^gungnir.Text,
@@ -98,6 +100,10 @@ assets_init :: proc(
 	)
 	assets.watering_can_cursor = gungnir.load_custom_cursor(
 		"assets/kenney_cursor_pixel_pack/watering_can_cursor.png",
+	)
+
+	assets.harvest_cursor = gungnir.load_custom_cursor(
+		"assets/kenney_cursor_pixel_pack/pointer_cursor.png",
 	)
 	assets.carrot_seed_cursor = gungnir.load_custom_cursor(
 		"assets/kenney_cursor_pixel_pack/carrot_seed_cursor.png",
@@ -149,11 +155,15 @@ assets_init :: proc(
 		assets.kenney_pixel,
 		"Press 6 To Equip Wheat Seeds",
 	)
+	assets.harvest_sound = gungnir.load_audio("assets/kenney_impact_sounds/harvest_sound.ogg")
+	assets.safe_haven = gungnir.load_audio("assets/safe_haven/safe_haven.ogg")
 }
+
 assets_destroy :: proc(assets: ^Assets) {
 	gungnir.destroy_texture(assets.kenney_tiny_farm_tile_sheet)
 	gungnir.destroy_cursor(assets.pointer_cursor)
 	gungnir.destroy_cursor(assets.watering_can_cursor)
+	gungnir.destroy_cursor(assets.harvest_cursor)
 	gungnir.destroy_cursor(assets.carrot_seed_cursor)
 	gungnir.destroy_cursor(assets.radish_seed_cursor)
 	gungnir.destroy_cursor(assets.corn_seed_cursor)
@@ -168,4 +178,6 @@ assets_destroy :: proc(assets: ^Assets) {
 	gungnir.destroy_text(assets.press_5_to_equip_lettuce_seeds)
 	gungnir.destroy_text(assets.press_6_to_equip_wheat_seeds)
 	gungnir.destroy_font(assets.kenney_pixel)
+	gungnir.destroy_audio(assets.harvest_sound)
+	gungnir.destroy_audio(assets.safe_haven)
 }

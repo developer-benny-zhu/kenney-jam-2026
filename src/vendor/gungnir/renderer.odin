@@ -11,9 +11,9 @@ clear_background :: proc(renderer: ^Renderer, color: Color) {
 }
 
 load_texture :: proc(
-renderer: ^Renderer,
-$path: cstring,
-scale_mode := sdl.ScaleMode.NEAREST,
+	renderer: ^Renderer,
+	$path: cstring,
+	scale_mode := sdl.ScaleMode.NEAREST,
 ) -> ^sdl.Texture {
 	texture := image.LoadTexture(renderer, path)
 	when ODIN_DEBUG {
@@ -30,19 +30,19 @@ destroy_texture :: proc(texture: ^Texture) {
 	sdl.DestroyTexture(texture)
 }
 
-draw_texture :: proc{
+draw_texture :: proc {
 	draw_texture_world,
 	draw_texture_screen,
 }
 
 draw_texture_world :: proc(
-renderer: ^Renderer,
-camera: Camera_2D,
-texture: ^Texture,
-$origin: Origin,
-position := linalg.Vector2f32{0, 0},
-scale := linalg.Vector2f32{1, 1},
-rotation: f64 = 0,
+	renderer: ^Renderer,
+	camera: Camera_2D,
+	texture: ^Texture,
+	$origin: Origin,
+	position := linalg.Vector2f32{0, 0},
+	scale := linalg.Vector2f32{1, 1},
+	rotation: f64 = 0,
 ) {
 	texture_width: f32
 	texture_height: f32
@@ -80,12 +80,12 @@ rotation: f64 = 0,
 }
 
 draw_texture_screen :: proc(
-renderer: ^Renderer,
-texture: ^Texture,
-$origin: Origin,
-position := linalg.Vector2f32{0, 0},
-scale := linalg.Vector2f32{1, 1},
-rotation: f64 = 0,
+	renderer: ^Renderer,
+	texture: ^Texture,
+	$origin: Origin,
+	position := linalg.Vector2f32{0, 0},
+	scale := linalg.Vector2f32{1, 1},
+	rotation: f64 = 0,
 ) {
 	texture_width: f32
 	texture_height: f32
@@ -121,21 +121,21 @@ rotation: f64 = 0,
 	sdl.RenderTextureRotated(renderer, texture, nil, &destination, rotation, &center, .NONE)
 }
 
-draw_texture_from_tile_sheet :: proc{
+draw_texture_from_tile_sheet :: proc {
 	draw_texture_from_tile_sheet_world,
 	draw_texture_from_tile_sheet_screen,
 }
 
 draw_texture_from_tile_sheet_world :: proc(
-renderer: ^Renderer,
-camera: Camera_2D,
-texture: ^Texture,
-tile_size: linalg.Vector2f32,
-tile_coordinate: linalg.Vector2f32,
-$origin: Origin,
-position := linalg.Vector2f32{0, 0},
-scale := linalg.Vector2f32{1, 1},
-rotation: f64 = 0,
+	renderer: ^Renderer,
+	camera: Camera_2D,
+	texture: ^Texture,
+	tile_size: linalg.Vector2f32,
+	tile_coordinate: linalg.Vector2f32,
+	$origin: Origin,
+	position := linalg.Vector2f32{0, 0},
+	scale := linalg.Vector2f32{1, 1},
+	rotation: f64 = 0,
 ) {
 	texture_width: f32
 	texture_height: f32
@@ -179,14 +179,14 @@ rotation: f64 = 0,
 }
 
 draw_texture_from_tile_sheet_screen :: proc(
-renderer: ^Renderer,
-texture: ^Texture,
-tile_size: linalg.Vector2f32,
-tile_coordinate: linalg.Vector2f32,
-$origin: Origin,
-position := linalg.Vector2f32{0, 0},
-scale := linalg.Vector2f32{1, 1},
-rotation: f64 = 0,
+	renderer: ^Renderer,
+	texture: ^Texture,
+	tile_size: linalg.Vector2f32,
+	tile_coordinate: linalg.Vector2f32,
+	$origin: Origin,
+	position := linalg.Vector2f32{0, 0},
+	scale := linalg.Vector2f32{1, 1},
+	rotation: f64 = 0,
 ) {
 	texture_width: f32
 	texture_height: f32
@@ -203,12 +203,7 @@ rotation: f64 = 0,
 		tile_size.x,
 		tile_size.y,
 	}
-	destination := sdl.FRect {
-		position.x,
-		position.y,
-		tile_size.x * scale.x,
-		tile_size.y * scale.y,
-	}
+	destination := sdl.FRect{position.x, position.y, tile_size.x * scale.x, tile_size.y * scale.y}
 	center: sdl.FPoint
 	when origin == .Top_Left {
 		center = {0, 0}
@@ -228,17 +223,17 @@ rotation: f64 = 0,
 	sdl.RenderTextureRotated(renderer, texture, &source, &destination, rotation, &center, .NONE)
 }
 
-draw_rectangle :: proc{
+draw_rectangle :: proc {
 	draw_rectangle_world,
 	draw_rectangle_screen,
 }
 
 draw_rectangle_world :: proc(
-renderer: ^Renderer,
-camera: Camera_2D,
-position: linalg.Vector2f32,
-size: linalg.Vector2f32,
-color: Color,
+	renderer: ^Renderer,
+	camera: Camera_2D,
+	position: linalg.Vector2f32,
+	size: linalg.Vector2f32,
+	color: Color,
 ) {
 	ok := sdl.SetRenderDrawColor(renderer, color.red, color.green, color.blue, color.alpha)
 	when ODIN_DEBUG {
@@ -257,10 +252,10 @@ color: Color,
 }
 
 draw_rectangle_screen :: proc(
-renderer: ^Renderer,
-position: linalg.Vector2f32,
-size: linalg.Vector2f32,
-color: Color,
+	renderer: ^Renderer,
+	position: linalg.Vector2f32,
+	size: linalg.Vector2f32,
+	color: Color,
 ) {
 	ok := sdl.SetRenderDrawColor(renderer, color.red, color.green, color.blue, color.alpha)
 	when ODIN_DEBUG {
@@ -268,11 +263,40 @@ color: Color,
 			fmt.printfln("Failed to render draw color: %s", sdl.GetError())
 		}
 	}
-	rectangle := sdl.FRect {
-		position.x,
-		position.y,
-		size.x,
-		size.y,
-	}
+	rectangle := sdl.FRect{position.x, position.y, size.x, size.y}
 	sdl.RenderFillRect(renderer, &rectangle)
+}
+
+draw_rectangle_outline :: proc {
+	draw_rectangle_outline_world,
+	draw_rectangle_outline_screen,
+}
+
+draw_rectangle_outline_world :: proc(
+	renderer: ^Renderer,
+	camera: Camera_2D,
+	position: linalg.Vector2f32,
+	size: linalg.Vector2f32,
+	color: Color,
+) {
+	sdl.SetRenderDrawColor(renderer, color.red, color.green, color.blue, color.alpha)
+	screen_position := (position - camera.position) * camera.zoom + camera.origin
+	rectangle := sdl.FRect {
+		screen_position.x,
+		screen_position.y,
+		size.x * camera.zoom,
+		size.y * camera.zoom,
+	}
+	sdl.RenderRect(renderer, &rectangle)
+}
+
+draw_rectangle_outline_screen :: proc(
+	renderer: ^Renderer,
+	position: linalg.Vector2f32,
+	size: linalg.Vector2f32,
+	color: Color,
+) {
+	sdl.SetRenderDrawColor(renderer, color.red, color.green, color.blue, color.alpha)
+	rectangle := sdl.FRect{position.x, position.y, size.x, size.y}
+	sdl.RenderRect(renderer, &rectangle)
 }

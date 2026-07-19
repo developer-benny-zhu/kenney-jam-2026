@@ -101,12 +101,16 @@ play_audio :: proc(audio: Audio, $play_mode: Audio_Play_Mode) {
 		return
 	}
 
-	ok := mixer.SetTrackPlaybackPosition(audio.track, 0)
+	// Reset playback position
+	_ = mixer.SetTrackPlaybackPosition(audio.track, 0)
+
 	when play_mode == .Once {
-		ok = mixer.PlayTrack(audio.track, 0)
+		_ = mixer.PlayTrack(audio.track, 0)
+		_ = mixer.SetTrackLoops(audio.track, 0)
 	}
 	when play_mode == .Loop {
-		ok = mixer.PlayTrack(audio.track, -1)
+		_ = mixer.PlayTrack(audio.track, 0)
+		_ = mixer.SetTrackLoops(audio.track, -1)
 	}
 }
 
