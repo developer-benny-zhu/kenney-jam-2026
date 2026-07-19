@@ -1,0 +1,45 @@
+name: Build Odin
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: odin-app-linux
+            output_name: build/app
+          - os: windows-latest
+            artifact_name: odin-app-windows
+            output_name: build/app.exe
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Odin
+        uses: laytan/setup-odin@v2
+        with:
+          version: latest 
+
+      - name: Create Build Directory
+        run: mkdir build
+
+      - name: Build with Maximum Optimization
+        run: |
+          odin build src -out:${{ matrix.output_name }} -o:aggressive -no-bounds-check -disable-assert
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.output_name }}
