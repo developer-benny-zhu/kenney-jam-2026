@@ -1,6 +1,7 @@
 package gungnir
 
 import "core:log"
+import "core:math/linalg"
 import "core:slice"
 import sdl "vendor:sdl3"
 
@@ -12,8 +13,16 @@ Input_State :: struct {
 	previous_keys:          []bool,
 	current_mouse_buttons:  sdl.MouseButtonFlags,
 	previous_mouse_buttons: sdl.MouseButtonFlags,
+	mouse_wheel:            linalg.Vector2f32,
 }
 
+input_state_process_event :: proc(input_state: ^Input_State, event: ^sdl.Event) {
+	#partial switch event.type {
+	case .MOUSE_WHEEL:
+		input_state.mouse_wheel.x = event.wheel.x
+		input_state.mouse_wheel.y = event.wheel.y
+	}
+}
 
 input_state_init :: proc(input_state: ^Input_State) {
 	number_of_keys: i32
@@ -28,6 +37,7 @@ input_state_init :: proc(input_state: ^Input_State) {
 }
 
 input_state_update :: proc(input_state: ^Input_State) {
+	input_state.mouse_wheel = {}
 	number_of_keys: i32
 	keyboard_state := sdl.GetKeyboardState(&number_of_keys)
 	copy(input_state.previous_keys, input_state.current_keys)

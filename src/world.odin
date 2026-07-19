@@ -83,8 +83,8 @@ world_till_layers :: proc(world: ^World, layers: int) {
 	}
 }
 
-world_get_tile :: proc(world: World, coordinate: [2]int) -> Tile {
-	return world.tiles[coordinate.y][coordinate.x]
+world_get_tile :: proc(world: ^World, coordinate: [2]int) -> ^Tile {
+	return &world.tiles[coordinate.y][coordinate.x]
 }
 
 world_convert_tile_to_watered :: proc(world: ^World, coordinate: [2]int) {

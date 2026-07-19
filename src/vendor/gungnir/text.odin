@@ -1,7 +1,6 @@
 package gungnir
 
 import "core:math/linalg"
-import sdl "vendor:sdl3"
 import "vendor:sdl3/ttf"
 
 load_font :: proc(path: cstring, font_size: f32) -> ^Font {
@@ -18,4 +17,8 @@ draw_text :: proc(text: ^Text, position: linalg.Vector2f32) {
 
 destroy_text :: proc(text: ^Text) {
 	ttf.DestroyText(text)
+}
+
+destroy_font :: proc(font: ^Font) {
+	ttf.CloseFont(font)
 }

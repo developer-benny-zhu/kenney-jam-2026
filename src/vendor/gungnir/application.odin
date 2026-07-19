@@ -2,15 +2,9 @@ package gungnir
 
 import "base:runtime"
 import "core:c"
-import "core:log"
+import "core:fmt"
 import sdl "vendor:sdl3"
 import "vendor:sdl3/ttf"
-
-when ODIN_DEBUG {
-	Debug_Logger :: log.Logger
-} else {
-	Debug_Logger :: struct {}
-}
 
 Application :: struct {
 	window:      ^Window,
@@ -21,7 +15,6 @@ Application :: struct {
 	end:         proc(application: ^Application),
 	last_time:   u64,
 	delta_time:  f32,
-	logger:      Debug_Logger,
 }
 
 @(private)
@@ -32,38 +25,45 @@ application_init :: proc(
 	title: cstring = "SDL3",
 	window_size: [2]c.int = {800, 600},
 ) {
-	when ODIN_DEBUG {
-		application.logger = log.create_console_logger()
-		context.logger = application.logger
-	}
 
-	if !sdl.Init({.VIDEO}) {
-		when ODIN_DEBUG do log.errorf("Failed to initialize SDL: %s", sdl.GetError())
-		return
+	ok := sdl.Init({.VIDEO})
+	when ODIN_DEBUG {
+		if !ok {
+			fmt.printfln("Failed to initialize SDL: %s", sdl.GetError())
+			return
+		}
 	}
 
 	init_audio_device()
 
-	if !ttf.Init() {
-		when ODIN_DEBUG do log.errorf("Failed to initialize TTF: %s", sdl.GetError())
-		return
+	ok = ttf.Init()
+	when ODIN_DEBUG {
+		if !ok {
+			fmt.printfln("Failed to initialize TTF: %s", sdl.GetError())
+			return
+		}
 	}
 
 	application.window = sdl.CreateWindow(title, window_size.x, window_size.y, {.RESIZABLE})
-	if application.window == nil {
-		when ODIN_DEBUG do log.errorf("Failed to create window: %s", sdl.GetError())
-		return
+	when ODIN_DEBUG {
+		if application.window == nil {
+			fmt.printfln("Failed to create window: %s", sdl.GetError())
+			return
+		}
 	}
-
 	application.renderer = sdl.CreateRenderer(application.window, nil)
-	if application.renderer == nil {
-		when ODIN_DEBUG do log.errorf("Cannot create renderer: %s", sdl.GetError())
-		return
+	when ODIN_DEBUG {
+		if application.renderer == nil {
+			fmt.printfln("Failed to create renderer: %s", sdl.GetError())
+			return
+		}
 	}
 	application.text_engine = ttf.CreateRendererTextEngine(application.renderer)
-	if application.text_engine == nil {
-		when ODIN_DEBUG do log.errorf("Cannot create text engine: %s", sdl.GetError())
-		return
+	when ODIN_DEBUG {
+		if application.text_engine == nil {
+			fmt.printfln("Failed to create text engine: %s", sdl.GetError())
+			return
+		}
 	}
 
 	sdl.SetRenderLogicalPresentation(
@@ -116,11 +116,11 @@ app_iterate :: proc "c" (appstate: rawptr) -> sdl.AppResult {
 
 	when ODIN_DEBUG do context.logger = application.logger
 
-	input_state_update(&global_input_state)
-
 	if application.update != nil {
 		application.update(application)
 	}
+
+	input_state_update(&global_input_state)
 
 	now := sdl.GetTicksNS()
 	application.delta_time = f32(now - application.last_time) / 1e9
@@ -132,6 +132,8 @@ app_iterate :: proc "c" (appstate: rawptr) -> sdl.AppResult {
 
 @(private)
 app_event :: proc "c" (appstate: rawptr, event: ^sdl.Event) -> sdl.AppResult {
+	context = runtime.default_context()
+	input_state_process_event(&global_input_state, event)
 	#partial switch event.type {
 	case .QUIT:
 		return .SUCCESS

@@ -105,7 +105,7 @@ play_audio :: proc(audio: Audio, $play_mode: Audio_Play_Mode) {
 	when play_mode == .Once {
 		ok = mixer.PlayTrack(audio.track, 0)
 	}
-	when player_mode == .Loop {
+	when play_mode == .Loop {
 		ok = mixer.PlayTrack(audio.track, -1)
 	}
 }
@@ -146,6 +146,5 @@ set_audio_volume :: proc(audio: Audio, volume: f32) {
 	if audio.track == nil {
 		return
 	}
-
 	ok := mixer.SetTrackGain(audio.track, volume)
 }

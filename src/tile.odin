@@ -2,6 +2,7 @@ package src
 
 import "core:math/linalg"
 import "vendor/gungnir"
+
 Tile :: struct {
 	crop: Crop,
 	kind: Tile_Kind,
@@ -34,7 +35,7 @@ tile_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			DRY_TILLED_SINGLE_COORDINATE,
-			.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Dry_Tilled_Top:
@@ -44,7 +45,7 @@ tile_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			DRY_TILLED_TOP_COORDINATE,
-			.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Dry_Tilled_Middle:
@@ -54,7 +55,7 @@ tile_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			DRY_TILLED_MIDDLE_COORDINATE,
-			.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Dry_Tilled_Bottom:
@@ -64,7 +65,7 @@ tile_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			DRY_TILLED_BOTTOM_COORDINATE,
-			.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Watered_Tilled_Single:
@@ -74,7 +75,7 @@ tile_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			WATERED_TILLED_SINGLE_COORDINATE,
-			.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Watered_Tilled_Top:
@@ -84,7 +85,7 @@ tile_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			WATERED_TILLED_TOP_COORDINATE,
-			.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Watered_Tilled_Middle:
@@ -94,7 +95,7 @@ tile_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			WATERED_TILLED_MIDDLE_COORDINATE,
-			.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	case .Watered_Tilled_Bottom:
@@ -104,7 +105,7 @@ tile_draw :: proc(
 			assets.kenney_tiny_farm_tile_sheet,
 			TILE_SIZE,
 			WATERED_TILLED_BOTTOM_COORDINATE,
-			.Top_Left,
+			gungnir.Origin.Top_Left,
 			position,
 		)
 	}
@@ -136,5 +137,27 @@ tile_is_watered :: proc(tile: Tile) -> bool {
 		return true
 	case:
 		return false
+	}
+}
+
+tile_has_crop :: proc(tile: Tile) -> bool {
+	return tile.crop.kind != .None
+}
+
+tile_set_crop :: proc(tile: ^Tile, seed: Seed) {
+	switch seed.kind {
+		case .Carrot:
+			tile.crop.kind = .Carrot_1
+		case .Radish:
+			tile.crop.kind = .Radish_1
+		case .Corn:
+			tile.crop.kind = .Corn_1
+		case .Tomato:
+			tile.crop.kind = .Tomato_1
+		case .Lettuce:
+			tile.crop.kind = .Lettuce_1
+		case .Wheat:
+			tile.crop.kind = .Wheat_1
+
 	}
 }
