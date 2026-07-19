@@ -29,7 +29,7 @@ jobs:
       - name: Setup Odin
         uses: laytan/setup-odin@v2
         with:
-          version: latest 
+          release: latest 
 
       - name: Install SDL3 Dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
