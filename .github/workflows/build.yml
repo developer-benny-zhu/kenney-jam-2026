@@ -1,4 +1,4 @@
-name: Build Odin
+name: Build Odin (Windows with SDL3 Bundled)
 
 on:
   push:
@@ -9,18 +9,8 @@ on:
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            artifact_name: odin-app-linux
-            output_name: build/app
-          - os: windows-latest
-            artifact_name: odin-app-windows
-            output_name: build/app.exe
+    name: Build on Windows
+    runs-on: windows-latest
 
     steps:
       - name: Checkout code
@@ -30,22 +20,39 @@ jobs:
         uses: laytan/setup-odin@v2
         with:
           release: latest 
-
-      - name: Install SDL3 Dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libsdl3-dev libsdl3-image-dev libsdl3-mixer-dev libsdl3-ttf-dev
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Build Directory
         run: mkdir build
 
+      - name: Fetch and Bundle Windows SDL3 DLLs
+        shell: bash
+        run: |
+          curl -L -o sdl3.zip https://github.com/libsdl-org/SDL/releases/download/release-3.4.12/SDL3-3.4.12-win32-x64.zip
+          curl -L -o sdl3_image.zip https://github.com/libsdl-org/SDL_image/releases/download/release-3.4.4/SDL3_image-3.4.4-win32-x64.zip
+          curl -L -o sdl3_mixer.zip https://github.com/libsdl-org/SDL_mixer/releases/download/release-3.4.0/SDL3_mixer-3.4.0-win32-x64.zip
+          curl -L -o sdl3_ttf.zip https://github.com/libsdl-org/SDL_ttf/releases/download/release-3.1.2/SDL3_ttf-3.1.2-win32-x64.zip
+
+          unzip -q sdl3.zip -d temp_sdl3
+          unzip -q sdl3_image.zip -d temp_image
+          unzip -q sdl3_mixer.zip -d temp_mixer
+          unzip -q sdl3_ttf.zip -d temp_ttf
+
+
+          find temp_sdl3 -name "*.dll" -exec cp {} build/ \;
+          find temp_image -name "*.dll" -exec cp {} build/ \;
+          find temp_mixer -name "*.dll" -exec cp {} build/ \;
+          find temp_ttf -name "*.dll" -exec cp {} build/ \;
+
+
+          rm -rf sdl3*.zip temp_*
+
       - name: Build with Maximum Optimization
         run: |
-          odin build src -out:${{ matrix.output_name }} -o:speed -no-bounds-check -disable-assert
+          odin build src -out:build/app.exe -o:speed -no-bounds-check -disable-assert
 
-      - name: Upload Artifact
+      - name: Upload Complete Release Bundle
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.output_name }}
+          name: odin-app-windows
+          path: build/
